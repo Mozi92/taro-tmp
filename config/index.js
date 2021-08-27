@@ -1,3 +1,38 @@
+const path = require("path");
+
+/**
+ * 我们的代理设置
+ */
+function myProxy() {
+  if (process.env.TARO_ENV === 'production') {
+    // build的时候，不需要配置代理
+    return null
+  }
+
+  // 以下url要转发到后端
+  const urls = [
+    '/prod-api',
+  ]
+
+  // 迭代urls，生成代理规则
+  const proxy = {}
+  for (let i = 0; i < urls.length; i++) {
+    console.log(urls[i])
+    const key = urls[i]
+    proxy[key] = {
+      target: 'http://10.137.42.15:983/prod-api',
+      ws: true,
+      changeOrigin: true,
+      secure: false,
+      pathRewrite: {
+        ['^prod-api']: ''
+      }
+    }
+  }
+  console.log('当前用的API代理', proxy)
+  return proxy
+}
+
 const config = {
   projectName: 'taro-tmp',
   date: '2021-8-27',
@@ -10,22 +45,21 @@ const config = {
   sourceRoot: 'src',
   outputRoot: 'dist',
   plugins: [],
-  defineConstants: {
+  defineConstants: {},
+  alias: {
+    '@/components': path.resolve(__dirname, '..', 'src/components'),
+    '@/utils': path.resolve(__dirname, '..', 'src/utils'),
   },
   copy: {
-    patterns: [
-    ],
-    options: {
-    }
+    patterns: [],
+    options: {}
   },
   framework: 'react',
   mini: {
     postcss: {
       pxtransform: {
         enable: true,
-        config: {
-
-        }
+        config: {}
       },
       url: {
         enable: true,
@@ -48,8 +82,7 @@ const config = {
     postcss: {
       autoprefixer: {
         enable: true,
-        config: {
-        }
+        config: {}
       },
       cssModules: {
         enable: false, // 默认为 false，如需使用 css modules 功能，则设为 true
@@ -58,6 +91,9 @@ const config = {
           generateScopedName: '[name]__[local]___[hash:base64:5]'
         }
       }
+    },
+    devServer: {
+      proxy: myProxy(), // 转发
     }
   }
 }
