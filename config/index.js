@@ -17,7 +17,6 @@ function myProxy() {
   // 迭代urls，生成代理规则
   const proxy = {}
   for (let i = 0; i < urls.length; i++) {
-    console.log(urls[i])
     const key = urls[i]
     proxy[key] = {
       target: 'http://10.137.42.15:983/prod-api',
